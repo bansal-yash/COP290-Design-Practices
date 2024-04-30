@@ -1,0 +1,5 @@
+moviepy
+openai-whisper
+assemblyai
+pypdf2
+pypdfium2
