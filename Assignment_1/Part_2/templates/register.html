@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="login-container">
+        <h2>&#128274; Register</h2>
+        <form id="registrationForm" method="post" action="/register">
+
+            <div class="form-group">
+                <span>&#128100;</span>
+                <input type="text" name="username" id="username" placeholder="Username" required>
+            </div>
+            <div class="availability-message" id="usernameAvailability"></div>
+            <div class="availability-message" id="usernameValidity"></div>
+
+            <div class="form-group">
+                <span>&#128222;</span>
+                <input type="text" name="phone_number" id="phone_number" placeholder="Phone Number" required>
+            </div>
+            <div class="availability-message" id="phoneAvailability"></div>
+
+            <div class="form-group">
+                <span>&#128222;</span>
+                <input type="text" name="email" id="email" placeholder="Email ID" required>
+            </div>
+            <div class="availability-message" id="emailAvailability"></div>
+
+            <div class="form-group">
+                <span>&#128273;</span>
+                <input type="password" name="password" id="password" placeholder="Password" required>
+            </div>
+            <div class="availability-message" id="correct_pass"></div>
+
+            <div class="form-group">
+                <span>&#128273;</span>
+                <input type="password" name="conf_password" id="conf_password" placeholder="Confirm Password" required>
+            </div>
+            <div class="availability-message" id="confirmed_password_message"></div>
+
+            <div class="form-group">
+                <button type="submit" id="submitButton">Register</button>
+            </div>
+
+        </form>
+        <p>Already have an account? <a color="white" href="/login">Sign in</a></p>
+    </div>
+
+    <script>
+
+        var isAvailable = {
+            username: true,
+            phone: true,
+            email: true,
+            password1: true,
+            password2: true
+        };
+
+        function updateSubmitButton() {
+            var submitButton = document.getElementById('submitButton');
+            if (isAvailable.username && isAvailable.phone && isAvailable.email && isAvailable.password1 && isAvailable.password2) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        document.getElementById('username').addEventListener('input', function () {
+            var usernameInput = this.value;
+            var availabilityMessage = document.getElementById('usernameAvailability');
+
+            fetch('/check-username', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'username=' + usernameInput
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available == true) {
+                        availabilityMessage.innerHTML = '';
+                        isAvailable.username = true;
+                    } else {
+                        if (data.reason == "short") {
+                            availabilityMessage.innerHTML = '<span style="color:black;">Username is too short.</span>';
+                        }
+                        else if (data.reason == "long") {
+                            availabilityMessage.innerHTML = '<span style="color:black;">Username is too long.</span>';
+                        }
+                        else {
+                            availabilityMessage.innerHTML = '<span style="color:black;">Username is not available. Please choose a different username.</span>';
+                        }
+                        isAvailable.username = false;
+                    }
+                    updateSubmitButton();
+                })
+        });
+
+        document.getElementById('phone_number').addEventListener('input', function () {
+            var phoneNumberInput = this.value;
+            var availabilityMessage = document.getElementById('phoneAvailability');
+
+            fetch('/check-phone', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'phone_number=' + phoneNumberInput
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available) {
+                        availabilityMessage.innerHTML = '';
+                        isAvailable.phone = true;
+                    } else {
+                        if (data.reason == "invalid") {
+                            availabilityMessage.innerHTML = '<span style="color:black;">Please enter a valid phone number</span>';
+                        }
+                        else {
+                            availabilityMessage.innerHTML = '<span style="color:black;">Phone number is already registered. Please use a different number.</span>';
+                        }
+                        isAvailable.phone = false;
+                    }
+                    updateSubmitButton();
+                })
+        });
+
+        document.getElementById('email').addEventListener('input', function () {
+            var emailInput = this.value;
+            var availabilityMessage = document.getElementById('emailAvailability');
+
+            fetch('/check-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'email=' + emailInput
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available) {
+                        availabilityMessage.innerHTML = '';
+                        isAvailable.email = true;
+                    } else {
+                        if (data.reason == "invalid") {
+                            availabilityMessage.innerHTML = '<span style="color:black;">Please enter a valid email address</span>';
+                        }
+                        else {
+                            availabilityMessage.innerHTML = '<span style="color:black;">email address is already registered. Please use a different number.</span>';
+                        }
+                        isAvailable.email = false;
+                    }
+                    updateSubmitButton();
+                })
+        });
+
+        document.getElementById('password').addEventListener('input', function () {
+            var PasswordInput = this.value;
+            document.getElementById('conf_password').value = '';
+            var availabilityMessage1 = document.getElementById('correct_pass');
+            var availabilityMessage2 = document.getElementById('confirmed_password_message')
+
+            fetch('/check-password1', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'password=' + PasswordInput
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available) {
+                        availabilityMessage1.innerHTML = '';
+                        isAvailable.password1 = true;
+                    } else {
+                        availabilityMessage1.innerHTML = '<span style="color:black;">invalid password</span>';;
+                        isAvailable.password1 = false;
+                    }
+                    availabilityMessage2.innerHTML = '';
+                    updateSubmitButton();
+                })
+        });
+
+        document.getElementById('conf_password').addEventListener('input', function () {
+            var confPasswordInput = this.value;
+            var PasswordInput = document.getElementById('password').value;
+            var availabilityMessage2 = document.getElementById('confirmed_password_message')
+
+            if (confPasswordInput == PasswordInput) {
+                availabilityMessage2.innerHTML = '';
+                isAvailable.password2 = true;
+            }
+            else {
+                availabilityMessage2.innerHTML = '<span style="color:black;">passwords not match</span>';;
+                isAvailable.password2 = false;
+            }
+            updateSubmitButton();
+        });
+    </script>
+</body>
+
+</html>

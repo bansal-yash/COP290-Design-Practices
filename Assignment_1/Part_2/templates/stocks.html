@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockTracker - [Stock Symbol]</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stocks.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav li {
+            margin: 0 15px;
+        }
+
+        nav li a {
+            text-decoration: none;
+            color: rgb(54, 57, 72);
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        #data_sets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        section {
+            margin-bottom: 30px;
+        }
+
+        .stock-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stock-info p {
+            margin: 0;
+            padding: 10px 0;
+            font-size: 16px;
+            line-height: 1.5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .chart-container {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            min-height: 400px;
+            /* Adjust the height as needed */
+        }
+
+        .news-feed {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="dimming-layer"></div>
+
+    <div class="navbar">
+        <div id='logo'>&infin; Infty</h1>
+        </div>
+        <div class="search-container-dropdown">
+            <div class="search-container" id="search" onclick="toggleDropdown('dropdown2',event)">
+                <div><i class="fas fa-search" style="margin-inline: 5px;"></i></div>
+                <div><input type="text" id="search-input" placeholder="Search..."></div>
+                <div id="dropdown2">
+                    <div id="options">
+                        <div class="options-button">
+                            <button class="centered-button" onclick="search_mode_options(1)" id="but1">All</button>
+                        </div>
+                        <div class="options-button">
+                            <button class="centered-button" onclick="search_mode_options(2)" id="but2">Stocks</button>
+                        </div>
+                        <div class="options-button">
+                            <button class="centered-button" onclick="search_mode_options(3)" id="but3">Indices</button>
+                        </div>
+                    </div>
+                    <div id="searchable_items_box1">
+                        <a href="#" id="href1">
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item" id='com1'>
+                                    </div>
+                                    <div class="symbol_of_search_items" id='sym1'>
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Stock
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" id="href2">
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item" id='com2'>
+                                    </div>
+                                    <div class="symbol_of_search_items" id='sym2'>
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Stock
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" id="href3">
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item" id='com3'>
+                                    </div>
+                                    <div class="symbol_of_search_items" id='sym3'>
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Stock
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" id="href4">
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item" id='com4'>
+                                    </div>
+                                    <div class="symbol_of_search_items" id='sym4'>
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Stock
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div id="searchable_items_box2">
+                        <a href="#" id="sthref1">
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item" id='stcom1'>
+                                    </div>
+                                    <div class="symbol_of_search_items" id='stsym1'>
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Stock
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" id="sthref2">
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item" id='stcom2'>
+                                    </div>
+                                    <div class="symbol_of_search_items" id='stsym2'>
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Stock
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" id="sthref3">
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item" id='stcom3'>
+                                    </div>
+                                    <div class="symbol_of_search_items" id='stsym3'>
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Stock
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" id="sthref4">
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item" id='stcom4'>
+                                    </div>
+                                    <div class="symbol_of_search_items" id='stsym4'>
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Stock
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div id="searchable_items_box3">
+                        <a href='/indices_NIFTY 50'>
+                            <div class="searchable_items">
+
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item">
+                                        NIFTY 50
+                                    </div>
+                                    <div class="symbol_of_search_items">
+                                        ^NSEI
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Index
+                                </div>
+
+                            </div>
+                        </a>
+                        <a href='/indices_NIFTY 100'>
+
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item">
+                                        NIFTY 100
+                                    </div>
+                                    <div class="symbol_of_search_items">
+                                        ^CNX100
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Index
+                                </div>
+                            </div>
+                        </a>
+                        <a href='/indices_NIFTY NEXT 50'>
+
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item">
+                                        NIFTY NEXT 50
+                                    </div>
+                                    <div class="symbol_of_search_items">
+                                        ^NSMIDCP
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Index
+                                </div>
+                            </div>
+                        </a>
+                        <a href='/indices_NIFTY BANK'>
+
+                            <div class="searchable_items">
+                                <div class="search_item_info">
+                                    <div class="name_of_search_item">
+                                        NIFTY BANK
+                                    </div>
+                                    <div class="symbol_of_search_items">
+                                        ^NSEBANK
+                                    </div>
+                                </div>
+                                <div class="type_of_search">
+                                    Index
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div id="searchable_items_box4">
+                        <div class="searchable_items">
+                            <div class="search_item_info">
+                                <div class="name_of_search_item">
+                                    State Bank of India
+                                </div>
+                                <div class="symbol_of_search_items">
+                                    SBIN
+                                </div>
+                            </div>
+                            <div class="type_of_search">
+                                Stock
+                            </div>
+                        </div>
+                        <div class="searchable_items">
+                            <div class="search_item_info">
+                                <div class="name_of_search_item">
+                                    Reliance Industries Ltd.
+                                </div>
+                                <div class="symbol_of_search_items">
+                                    Reliance
+                                </div>
+                            </div>
+                            <div class="type_of_search">
+                                Stock
+                            </div>
+                        </div>
+                        <div class="searchable_items">
+                            <div class="search_item_info">
+                                <div class="name_of_search_item">
+                                    State Bank of India
+                                </div>
+                                <div class="symbol_of_search_items">
+                                    SBIN
+                                </div>
+                            </div>
+                            <div class="type_of_search">
+                                Stock
+                            </div>
+                        </div>
+                        <div class="searchable_items">
+                            <div class="search_item_info">
+                                <div class="name_of_search_item">
+                                    Reliance Industries Ltd.
+                                </div>
+                                <div class="symbol_of_search_items">
+                                    Reliance
+                                </div>
+                            </div>
+                            <div class="type_of_search">
+                                Stock
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="nav_main">
+            <div id="nav_main_helper">
+                <ul>
+                    <li><a href="#"><i class="fas fa-shopping-cart font_awesome_icons"></i></a></li>
+                    <li><a href="#">&#128176;</a></li>
+                    <li>
+                        <div class="dropdown">
+                            <div class="dropdown-btn" id='profileicon' onclick="toggleDropdown('dropdown1',event)">
+                                <i class="fas fa-user user-icon"></i>
+                            </div>
+                            <div class="dropdown-content color" id="dropdown1">
+                                <a class="color" href="profile.html">
+                                    <div id="account">
+
+                                        <div class="icon">
+                                            <img src="p6.jpg">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px" id="profile_name"></div>
+                                            <div style="font-size: 13px" id="profile_email"></div>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <div class="toggle-container" onclick="toggleCheckbox(0)">
+                                    <div><i class="fas fa-sun"></i> Mode</div>
+                                    <div class="toggle-switch">
+                                        <label class="switch">
+                                            <input type="checkbox" id="toggleCheckbox" onclick="toggleCheckbox(1)">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <a href="/contact" class="color">
+                                    <div class="dropdown-items"><i class="fas fa-headset"></i></i></i>
+                                        Customer Support</div>
+                                </a>
+
+                                <a href="profile.html" class="color">
+                                    <div class="dropdown-items"><i class="fas fa-cog"></i></i>
+                                        Settings</div>
+                                </a>
+
+                                <a href="/logout" class="color">
+                                    <div class="dropdown-items"><i class="fas fa-sign-out-alt"></i>
+                                        LogOut</div>
+                                </a>
+
+                            </div>
+                        </div>
+
+
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <header>
+        <h1>{{company}}</h1>
+        <p>{{sym}}</p>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <ul>
+            <li><a href="#live-prices">Live Prices</a></li>
+            <li><a href="#interactive-chart">Interactive Chart</a></li>
+            <li><a href="#news-updates">News & Updates</a></li>
+            <!-- Add more sections as needed -->
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+
+        <!-- Live Stock Prices -->
+        <div id="data_sets">
+            <section id="live-prices" style="min-height: 200px;">
+                <h2>Live Stock Prices</h2>
+                <div class="stock-info">
+                    <p id="previous_close">Previous Close: </p>
+                    <p id="open">Open:</p>
+                    <p id="close">Close:</p>
+                    <p id="high">High:</p>
+                    <p id="low">Low:</p>
+                    <p id="volume">Volume:</p>
+                    <p id="avg_volume">Average Volume:</p>
+                </div>
+            </section>
+
+            <section id="live-prices" style="min-height: 200px;">
+                <h2>Other Statistics</h2>
+                <div class="stock-info">
+                    <p id="P/E">P/E:</p>
+                    <p id="Marketcap">Marketcap: </p>
+                    <p id="tot_dt">Total debt:</p>
+                    <p id="tot_rev">Total Revenue:</p>
+
+                </div>
+            </section>
+        </div>
+
+
+        <!-- Interactive Chart -->
+        <section id="interactive-chart">
+            <h2>Interactive Chart</h2>
+            <div class="chart-container">
+                {{ plotly_figure_html | safe }}
+            </div>
+        </section>
+
+        <!-- News and Updates -->
+        <section id="news-updates" style="min-height: 200px;">
+            <h2>News & Updates</h2>
+            <div class="news-feed">
+                <!-- Display real-time news and updates -->
+            </div>
+        </section>
+
+        <!-- Additional Sections as Needed -->
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2024 StockTracker. All rights reserved.</p>
+        <p>[Additional footer information]</p>
+    </footer>
+
+    <script>
+        // Generate random data for the chart (replace this with actual data)
+
+        // Function to generate and display random news
+
+        var i = 0;
+        var j = 0;
+        function toggleCheckbox(checker) {
+            var checkbox = document.getElementById("toggleCheckbox");
+            if (checker === 0) {
+                checkbox.checked = !checkbox.checked;
+            }
+            if (i === 0) {
+                document.getElementById('main-content').style.backgroundColor = '#222';
+                document.getElementById('nav_main').style.backgroundColor = '#222';
+                document.getElementById('nav_main').style.color = 'rgb(255, 254, 221)';
+
+
+                var colorElements = document.querySelectorAll('.color');
+
+                colorElements.forEach(function (element) {
+                    element.style.backgroundColor = '#000';
+                    element.style.color = 'rgb(255, 254, 221)';
+                });
+                var colorElements = document.querySelectorAll('.column');
+
+                colorElements.forEach(function (element) {
+                    element.style.backgroundColor = '#000';
+                    element.style.color = 'rgb(255, 254, 221)';
+                });
+
+
+                i = 1;
+
+            } else {
+                document.getElementById('main-content').style.backgroundColor = '#eee';
+                document.getElementById('nav_main').style.backgroundColor = '#eee';
+                document.getElementById('nav_main').style.color = 'rgb(68, 71, 91)';
+                i = 0;
+                var colorElements = document.querySelectorAll('.color');
+
+                colorElements.forEach(function (element) {
+                    element.style.backgroundColor = '#fff';
+                    element.style.color = 'rgb(68, 71, 91)';
+                });
+                var colorElements = document.querySelectorAll('.column');
+
+                colorElements.forEach(function (element) {
+                    element.style.backgroundColor = '#fff';
+                    element.style.color = 'rgb(68, 71, 91)';
+                });
+            }
+
+        }
+
+        function toggleDimmingLayer() {
+            var dimmingLayer = document.getElementById('dimming-layer');
+            dimmingLayer.style.display = (dimmingLayer.style.display === 'block') ? 'none' : 'block';
+        }
+
+
+        // Close the dropdowns if the user clicks outside of them
+        window.onclick = function (event) {
+
+            var userIcon = document.querySelector(".user-icon");
+            var userIconDropdown = document.querySelector(".dropdown-content");
+            var searchContainerDropdown = document.getElementById("dropdown2");
+
+            // Check if the click is outside the user icon and its dropdown
+            if (!(event.target === userIcon || event.target.closest(".dropdown-content"))) {
+                if (userIconDropdown.style.display === "block") {
+                    userIconDropdown.style.display = "none";
+                }
+            }
+
+            // Check if the click is outside the search container dropdown
+            if (!(event.target.matches("#dropdown2"))) {
+                console.log("Hello");
+                if (searchContainerDropdown.style.display === "block") {
+                    searchContainerDropdown.style.display = "none";
+                    toggleDimmingLayer();
+                    j = 0;
+                }
+            }
+        };
+
+        function toggleDropdown(dropdownId, event) {
+            var dropdownContent = document.getElementById(dropdownId);
+            if (dropdownId === "dropdown2") {
+                if (j === 0) {
+                    toggleDimmingLayer();
+                    j = 1;
+                }
+                dropdownContent.style.display = 'block';
+                console.log(dropdownId);
+                event.stopPropagation();
+            } else {
+                console.log(dropdownId);
+                dropdownContent.style.display =
+                    dropdownContent.style.display === "block" ? "none" : "block";
+                console.log(dropdownContent.style.display);
+            }
+
+        }
+
+        function search_mode_options(mode) {
+            if (mode === 1) {
+                document.getElementById('searchable_items_box1').style.display = "inherit";
+                document.getElementById('searchable_items_box2').style.display = "none";
+                document.getElementById('searchable_items_box3').style.display = "none";
+                document.getElementById('but1').style.backgroundColor = "rgb(230, 207, 230)";
+                document.getElementById('but2').style.backgroundColor = "#efefef";
+                document.getElementById('but3').style.backgroundColor = "#efefef";
+
+
+            } else if (mode === 2) {
+                document.getElementById('searchable_items_box1').style.display = "none";
+                document.getElementById('searchable_items_box2').style.display = "inherit";
+                document.getElementById('searchable_items_box3').style.display = "none";
+                document.getElementById('but1').style.backgroundColor = "#efefef";
+                document.getElementById('but2').style.backgroundColor = "rgb(230, 207, 230)";
+                document.getElementById('but3').style.backgroundColor = "#efefef";
+
+            } else {
+                document.getElementById('searchable_items_box1').style.display = "none";
+                document.getElementById('searchable_items_box2').style.display = "none";
+                document.getElementById('searchable_items_box3').style.display = "inherit";
+                document.getElementById('but1').style.backgroundColor = "#efefef";
+                document.getElementById('but2').style.backgroundColor = "#efefef";
+                document.getElementById('but3').style.backgroundColor = "rgb(230, 207, 230)";
+            }
+        }
+
+        document.getElementById('profileicon').addEventListener('click', function () {
+            var nameElement = document.getElementById('profile_name');
+            var emailElement = document.getElementById('profile_email');
+
+            fetch('/get-profile-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    nameElement.textContent = data.username;
+                    emailElement.textContent = data.email;
+                })
+                .catch(error => console.error('Error fetching profile info:', error));
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Create a new XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
+
+            // Define the request details
+            xhr.open('GET', '/send_stock_data', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            // Set up a callback function to handle the response
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    // Parse the JSON response
+                    var response = JSON.parse(xhr.responseText);
+
+                    // Update the content of the respective p elements with the received data
+                    document.getElementById('previous_close').innerHTML = 'Previous Close: ' + response.data[0];
+                    document.getElementById('open').innerHTML = 'Open: ' + response.data[1];
+                    document.getElementById('close').innerHTML = 'Close: ' + response.data[2];
+                    document.getElementById('high').innerHTML = 'High: ' + response.data[3];
+                    document.getElementById('low').innerHTML = 'Low: ' + response.data[4];
+                    document.getElementById('volume').innerHTML = 'Volume: ' + response.data[5].toLocaleString();
+                    document.getElementById('avg_volume').innerHTML = 'Average Volume: ' + response.data[6].toLocaleString();
+                    document.getElementById('P/E').innerHTML = 'P/E: ' + response.data[7]
+                    document.getElementById('Marketcap').innerHTML = 'Marketcap: &#8377;' + response.data[8].toLocaleString(); // Format as comma-separated number
+                    document.getElementById('tot_dt').innerHTML = 'Total Debt: &#8377;' + response.data[9].toLocaleString(); // Format as comma-separated number
+                    document.getElementById('tot_rev').innerHTML = 'Total Revenue: &#8377;' + response.data[10].toLocaleString();
+
+                } else {
+                    console.error('Error:', xhr.statusText);
+                }
+            };
+
+            // Set up an error callback function
+            xhr.onerror = function () {
+                console.error('Request failed');
+            };
+
+            // Send the request
+            xhr.send();
+        });
+
+
+        function search_stock() {
+            var search_input = document.getElementById('search-input').value;
+            var sym1 = document.getElementById('stsym1');
+            var sym2 = document.getElementById('stsym2');
+            var sym3 = document.getElementById('stsym3');
+            var sym4 = document.getElementById('stsym4');
+            var com1 = document.getElementById('stcom1');
+            var com2 = document.getElementById('stcom2');
+            var com3 = document.getElementById('stcom3');
+            var com4 = document.getElementById('stcom4');
+            var link1 = document.getElementById('sthref1');
+            var link2 = document.getElementById('sthref2');
+            var link3 = document.getElementById('sthref3');
+            var link4 = document.getElementById('sthref4');
+
+            fetch('/search-stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'search=' + search_input
+            })
+
+                .then(response => response.json())
+                .then(data => {
+                    sym1.innerHTML = data.sym1;
+                    sym2.innerHTML = data.sym2;
+                    sym3.innerHTML = data.sym3;
+                    sym4.innerHTML = data.sym4;
+                    com1.innerHTML = data.com1;
+                    com2.innerHTML = data.com2;
+                    com3.innerHTML = data.com3;
+                    com4.innerHTML = data.com4;
+                    link1.href = "/stock_" + data.sym1;
+                    link2.href = "/stock_" + data.sym2;
+                    link3.href = "/stock_" + data.sym3;
+                    link4.href = "/stock_" + data.sym4;
+
+                })
+        }
+
+        document.getElementById('search-input').addEventListener('input', search_stock);
+        document.getElementById('search').addEventListener('click', search_stock);
+
+        function search_all() {
+            var search_input = document.getElementById('search-input').value;
+            var sym1 = document.getElementById('sym1');
+            var sym2 = document.getElementById('sym2');
+            var sym3 = document.getElementById('sym3');
+            var sym4 = document.getElementById('sym4');
+            var com1 = document.getElementById('com1');
+            var com2 = document.getElementById('com2');
+            var com3 = document.getElementById('com3');
+            var com4 = document.getElementById('com4');
+            var link1 = document.getElementById('href1');
+            var link2 = document.getElementById('href2');
+            var link3 = document.getElementById('href3');
+            var link4 = document.getElementById('href4');
+
+            fetch('/search-all', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'search=' + search_input
+            })
+
+                .then(response => response.json())
+                .then(data => {
+                    sym1.innerHTML = data.sym1;
+                    sym2.innerHTML = data.sym2;
+                    sym3.innerHTML = data.sym3;
+                    sym4.innerHTML = data.sym4;
+                    com1.innerHTML = data.com1;
+                    com2.innerHTML = data.com2;
+                    com3.innerHTML = data.com3;
+                    com4.innerHTML = data.com4;
+                    link1.href = "/stock_" + data.sym1;
+                    link2.href = "/stock_" + data.sym2;
+                    link3.href = "/stock_" + data.sym3;
+                    link4.href = "/stock_" + data.sym4;
+
+                })
+        }
+
+        document.getElementById('search-input').addEventListener('input', search_all);
+        document.getElementById('search').addEventListener('click', search_all);
+
+
+    </script>
+
+</body>
+
+</html>

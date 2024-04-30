@@ -1,0 +1,12 @@
+jugaad-data
+datetime
+openpyxl
+pandas
+matplotlib
+numpy
+pyarrow
+tables
+h5py
+lxml
+tabulate
+sqlalchemy

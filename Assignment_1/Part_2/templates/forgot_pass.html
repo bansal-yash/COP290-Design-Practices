@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+    <title>Forgot Password UI Using CSS - @code.scientist x @codingtorque</title>
+</head>
+
+<body>
+    <div class="card">
+        <p class="lock-icon"> &#128274;</p>
+        <h2>Forgot Password?</h2>
+        <p>You can reset your Password here</p>
+        <form action="/forgot-password" method="POST">
+            <input type="text" class="passInput" name='email' id="email1" placeholder="email id">
+            <div class="availability-message" id="validity_message"></div>
+            <button type="submit" id="reset">Reset Password</button>
+        </form>
+
+    </div>
+
+    <script>
+        document.getElementById('email1').addEventListener('input', function () {
+            var emailInput = this.value;
+            var availabilityMessage = document.getElementById('validity_message');
+            var reset_button = document.getElementById('reset');
+
+            fetch('/check-email-forgot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'email=' + emailInput
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exist) {
+                        availabilityMessage.innerHTML = '';
+                        reset_button.disabled = false;
+                    } else {
+                        availabilityMessage.innerHTML = '<span style="color:black;">Please enter valid registered email</span>';
+                        reset_button.disabled = true;
+                    }
+                })
+        });
+
+    </script>
+</body>
+
+</html>
